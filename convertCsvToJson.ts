@@ -19,7 +19,12 @@ const results: Product[] = [];
 fs.createReadStream('sephoraData.csv')
   .pipe(csv())
   .on('data', (row) => {
-    console.log(row);
+    const rawName =
+      row['Name'] ??
+      row['Product Name'] ??
+      row['\uFEFFProduct Name'] ??
+      row['name'];
+
     const ingredientsRaw = row['Ingredients'] || '';
     const ingredients = ingredientsRaw
       .split(/[•,]/)
@@ -27,15 +32,15 @@ fs.createReadStream('sephoraData.csv')
       .filter((i: string) => i.length > 0);
 
     results.push({
-      name: row['Product Name'],
+      name: rawName || 'Unnamed Product',
       brand: row['Brand'] || 'Unknown',
       ingredients,
       skinTypes: {
-        oily: row['Oily Skin'] === '1',
-        dry: row['Dry Skin'] === '1',
-        combo: row['Combination Skin'] === '1',
-        normal: row['Normal Skin'] === '1',
-        sensitive: row['Sensitive Skin'] === '1'
+        oily: row['Oily'] === '1',
+        dry: row['Dry'] === '1',
+        combo: row['Combination'] === '1',
+        normal: row['Normal'] === '1',
+        sensitive: row['Sensitive'] === '1'
       }
     });
   })
